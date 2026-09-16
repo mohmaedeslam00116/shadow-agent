@@ -1,9 +1,17 @@
 import type { NextConfig } from "next";
-// @ts-expect-error - No types available for this plugin
-import { PrismaPlugin } from "@prisma/nextjs-monorepo-workaround-plugin";
+// PROBE: PrismaPlugin disabled on research/electron-probe — it throws
+// "Cannot read properties of undefined (reading 'server')" with Next 15.3
+// webpack (incompatibility) and globs into Windows profile junctions (EPERM).
+// See docs/research/005-electron-probe-results.md. NEVER MERGE AS-IS.
+// import { PrismaPlugin } from "@prisma/nextjs-monorepo-workaround-plugin";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  // PROBE: keep Prisma runtime + engine loader out of the server bundle.
+  // Turbopack bundling mangles the engine path discovery (numeric module id
+  // passed to path.join). External = node_modules present at runtime, which
+  // is the correct shape for a desktop app with an embedded server.
+  serverExternalPackages: ["@repo/db", "@prisma/client", "@prisma/engines"],
   devIndicators: {
     position: "bottom-right",
   },
@@ -19,9 +27,9 @@ const nextConfig: NextConfig = {
   process.env.NODE_ENV === "production"
     ? {
         webpack: (config, { isServer }) => {
-          if (isServer) {
-            config.plugins = [...config.plugins, new PrismaPlugin()];
-          }
+          // if (isServer) {
+          //   config.plugins = [...config.plugins, new PrismaPlugin()];
+          // }
           // Grab the existing rule that handles SVG imports
           const fileLoaderRule = config.module.rules.find(
             (rule: { test?: { test?: (arg0: string) => boolean } }) =>

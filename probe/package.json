@@ -1,0 +1,13 @@
+{
+  "name": "shadow-electron-probe",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Wayfinder probe (ticket #5): Electron shell + Next dev server + IPC echo. Throwaway — never merge.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^33.0.0"
+  }
+}
