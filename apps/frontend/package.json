@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack --port 3000",
-    "build": "next build",
+    "prebuild": "node ../../scripts/apply-desktop-patches.js",
+    "build": "node ../../scripts/build-frontend.js",
     "start": "next start",
     "lint": "next lint",
     "check-types": "tsc --noEmit",

@@ -1,13 +1,14 @@
+// DESKTOP FORK (#15, decisions #7/#12): SQLite provider. Remote-mode engine
+// targets (rhel/musl) dropped — remote mode is dormant in this fork.
 generator client {
   provider      = "prisma-client-js"
   output        = "../generated/client"
-  binaryTargets = ["native", "rhel-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+  binaryTargets = ["native"]
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -283,7 +284,10 @@ model UserSettings {
   autoPullRequest  Boolean  @default(false)
   enableShadowWiki Boolean  @default(true)
   enableIndexing   Boolean  @default(false)
-  selectedModels   String[] @default([])
+  // SQLite has no scalar lists (#7): JSON string at the DB boundary.
+  // API/frontend contract stays string[] — transform lives in
+  // apps/frontend/lib/db-operations/user-settings.ts.
+  selectedModels   String   @default("[]")
   rules            String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

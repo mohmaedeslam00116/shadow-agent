@@ -1,0 +1,25 @@
+# electron-builder config for the #15 packaged smoke test (desktop fork).
+# Decisions applied: #6 (electron-builder), #12 (NSIS + ZIP targets,
+# unsigned v0), #8-deferred (asar stays OFF until the process-model ADR).
+appId: com.shadow.desktop.smoke
+productName: Shadow
+directories:
+  output: dist
+  buildResources: build
+files:
+  - main.js
+  - preload.js
+  - package.json
+asar: false
+# The monorepo snapshot the embedded server runs from (see smoke/main.js).
+extraResources:
+  - from: ../app-root
+    to: app-root
+    filter:
+      - "**/*"
+win:
+  # Decision #12: unsigned v0. SmartScreen warning expected and documented.
+  signAndEditExecutable: false
+  target:
+    - nsis
+    - zip

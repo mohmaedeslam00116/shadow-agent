@@ -42,3 +42,7 @@ bun.lock
 internal/
 
 scripts/logs/
+# Desktop fork: local SQLite databases (#7/#12)
+packages/db/prisma/*.db
+packages/db/prisma/*.db-journal
+*.db-journal

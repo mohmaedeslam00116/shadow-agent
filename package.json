@@ -30,6 +30,8 @@
     "schema": "packages/db/prisma/schema.prisma"
   },
   "devDependencies": {
+    "@tailwindcss/oxide-win32-x64-msvc": "4.3.3",
+    "lightningcss-win32-x64-msvc": "1.33.0",
     "prettier": "^3.6.2",
     "turbo": "^2.5.4",
     "typescript": "5.8.3"

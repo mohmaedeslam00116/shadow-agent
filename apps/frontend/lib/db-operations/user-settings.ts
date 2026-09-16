@@ -1,5 +1,25 @@
 import { prisma } from "@repo/db";
 
+// SQLite has no scalar lists (decision #7): selectedModels is a JSON string
+// in the DB and a string[] everywhere else. This module is the only
+// read/write choke point, so the transform lives here — the API route,
+// hooks, and components keep the string[] contract untouched.
+function modelsToJson(models: string[] | undefined): string {
+  return JSON.stringify(models ?? []);
+}
+
+function jsonToModels(value: unknown): string[] {
+  if (typeof value !== "string") return [];
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return Array.isArray(parsed)
+      ? parsed.filter((m): m is string => typeof m === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
 export interface UserSettings {
   id: string;
   userId: string;
@@ -20,7 +40,8 @@ export async function getUserSettings(
     where: { userId },
   });
 
-  return settings;
+  if (!settings) return settings;
+  return { ...settings, selectedModels: jsonToModels(settings.selectedModels) };
 }
 
 export async function createUserSettings(
@@ -40,13 +61,13 @@ export async function createUserSettings(
       autoPullRequest: settings.autoPullRequest,
       enableShadowWiki: settings.enableShadowWiki ?? true,
       memoriesEnabled: settings.memoriesEnabled ?? true,
-      selectedModels: settings.selectedModels ?? [],
+      selectedModels: modelsToJson(settings.selectedModels),
       enableIndexing: settings.enableIndexing ?? false,
       rules: settings.rules,
     },
   });
 
-  return result;
+  return { ...result, selectedModels: jsonToModels(result.selectedModels) };
 }
 
 export async function updateUserSettings(
@@ -77,7 +98,7 @@ export async function updateUserSettings(
     if (settings.memoriesEnabled !== undefined)
       updateData.memoriesEnabled = settings.memoriesEnabled;
     if (settings.selectedModels !== undefined)
-      updateData.selectedModels = settings.selectedModels;
+      updateData.selectedModels = modelsToJson(settings.selectedModels);
     if (settings.enableIndexing !== undefined)
       updateData.enableIndexing = settings.enableIndexing;
     if (settings.rules !== undefined)
@@ -115,7 +136,7 @@ export async function updateUserSettings(
       settings.selectedModels !== undefined &&
       settings.selectedModels.length > 0
     )
-      createData.selectedModels = settings.selectedModels;
+      createData.selectedModels = modelsToJson(settings.selectedModels);
     if (
       settings.enableIndexing !== undefined &&
       settings.enableIndexing !== false
@@ -130,7 +151,7 @@ export async function updateUserSettings(
       create: createData,
     });
 
-    return result;
+    return { ...result, selectedModels: jsonToModels(result.selectedModels) };
   } catch (error) {
     console.error("Error in updateUserSettings:", error);
     throw error;
