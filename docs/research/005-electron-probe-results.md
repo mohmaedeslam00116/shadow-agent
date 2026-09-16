@@ -2,6 +2,8 @@
 
 Ticket: [#5](https://github.com/mohmaedeslam00116/shadow-agent/issues/5) · Feeds: [#6](https://github.com/mohmaedeslam00116/shadow-agent/issues/6), [#8](https://github.com/mohmaedeslam00116/shadow-agent/issues/8) · Branch: `research/electron-probe` (throwaway, never merge)
 
+> **Update (post-#6):** the production-build EPERM was later root-caused to `@vercel/nft` output-file-tracing (not PrismaPlugin, whose throw was a secondary symptom). See Memo 007.
+
 ## Verdict
 
 **PASS.** Electron 33 + Next 15.3.5 (dev server as child process) boots on Windows and the full checklist works: middleware auth redirect fires, `/auth` renders through BetterAuth, same-origin page load, and renderer→main→renderer IPC round-trips. The embedded-Next-server renderer strategy is **validated for the dev-server shape**; remaining risk concentrates in production builds (below).
